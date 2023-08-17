@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books-List</title>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common.min.css">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.rtl.min.css">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.default.min.css">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.mobile.all.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+<div id="app" class="container py-4">
+<!--    <h1 class="mb-4">Welcome to the Dashboard</h1>-->
+<!--    <a href="#" class="btn btn-secondary mb-4" @click="logout">Logout</a>-->
+
+
+    <div id="grid"></div>
+
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            books: [],
+            newBook: { title: '', author: '', publicationYear: null },
+        },
+        methods: {
+    //   logout() {
+              //  document.cookie = "JSESSIONID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            //    window.location.href = '/logout';
+         //   },
+            addNewRow() {
+                var grid = $("#grid").data("kendoGrid");
+                grid.addRow();
+            },
+        },
+        mounted() {
+            const self = this;
+            $("#grid").kendoGrid({
+                columns: [
+                    { field: "title", title: "Title" },
+                    { field: "author", title: "Author" },
+                    { field: "publicationYear", title: "Publication Year" },
+                    { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }
+                ],
+                dataSource: {
+                    transport: {
+                        read: function(options) {
+                            // Fetch data from API and provide it to the grid
+                            // Replace this with your actual API endpoint
+                            axios.get('/Books/books')
+                                .then(response => {
+                                    options.success(response.data);
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching data:', error);
+                                    options.error(error);
+                                });
+                        },
+                        create: function(options) {
+                            // Add data to the API and notify the grid
+                            // Replace this with your actual API endpoint
+                            axios.post('/Books/book', options.data)
+                                .then(response => {
+                                    options.success(response.data);
+                                })
+                                .catch(error => {
+                                    console.error('Error adding data:', error);
+                                    options.error(error);
+                                });
+                        },
+                        update: function(options) {
+                            // Update data in the API and notify the grid
+                            // Replace this with your actual API endpoint
+                            axios.put(`/Books/book/${options.data.id}`, options.data)
+                                .then(response => {
+                                    options.success(response.data);
+                                })
+                                .catch(error => {
+                                    console.error('Error updating data:', error);
+                                    options.error(error);
+                                });
+                        },
+                        destroy: function(options) {
+                            // Delete data from the API and notify the grid
+                            // Replace this with your actual API endpoint
+                            axios.delete(`/Books/book/${options.data.id}`)
+                                .then(() => {
+                                    options.success();
+                                })
+                                .catch(error => {
+                                    console.error('Error deleting data:', error);
+                                    options.error(error);
+                                });
+                        }
+                    },
+                    schema: {
+                        model: { id: "id" }
+                    }
+                },
+                editable: true,
+                toolbar: ["create", "save"],
+                edit: function(e) {
+                    e.container.find(".k-edit-form-container").append('<button class="k-button k-primary k-add-button" @click="addNewRow">Add</button>');
+                },
+            });
+        },
+    });
+</script>
+
+</body>
+</html>

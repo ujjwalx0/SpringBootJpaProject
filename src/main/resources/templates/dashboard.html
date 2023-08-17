@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+    <title>Dashboard</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!-- VENDOR CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- LINEICONS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/linearicons@1.0.2/dist/web-font/style.css">
+<style>
+ body {
+            background-color: #2f4050;
+            color: #ffffff;
+        }
+
+        .sidebar {
+            background-color: #34495e;
+        }
+
+        .nav>li>a,
+        .navbar-default .navbar-nav>li>a {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 15px; /* Adjust the padding to add space between buttons */
+            display: block; /* Ensures the whole area of the link is clickable */
+        }
+
+        .navbar-default .navbar-nav>li>a:hover {
+            color: #1abc9c;
+        }
+
+        #page-content {
+            position: relative;
+        }
+
+        #page-iframe {
+            width: 100%;
+            height: calc(100vh - 60px); /* Adjust the height based on your top navbar's height */
+            border: none;
+        }
+
+        .sidebar {
+            background-color: #34495e;
+            position: fixed;
+            left: -250px; /* Start the sidebar off-screen */
+            top: 60px; /* Adjust based on your top navbar's height */
+            width: 250px;
+            height: calc(100vh - 60px); /* Adjust for the top navbar's height */
+            transition: left 0.3s ease-in-out; /* Add smooth transition */
+        }
+
+        /* Show the sidebar when it's active */
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Button to toggle the sidebar */
+        #sidebar-toggle {
+            position: fixed;
+            top: 15px;
+            left: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ffffff;
+        }
+
+
+        .back-button {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            padding: 10px;
+            background-color: #34495e;
+            color: #ffffff;
+            text-decoration: none;
+            border-top-right-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-button i {
+            margin-right: 5px;
+        }
+
+    </style>
+
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+</head>
+
+<body>
+<div id="wrapper">
+    <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav navbar-right ml-auto">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="lnr lnr-user"></i> <span th:text="${username}">Ujjwal</span> <i
+                                class="icon-submenu lnr lnr-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="#"><i class="lnr lnr-user"></i> <span>My Profile</span></a></li>
+                            <li><a href="#"><i class="lnr lnr-envelope"></i> <span>Message</span></a></li>
+                            <li><a href="#"><i class="lnr lnr-cog"></i> <span>Settings</span></a></li>
+                           <li><a href="#" id="logoutLink"><i class="lnr lnr-exit"></i> <span>Logout</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- END NAVBAR -->
+
+        <div id="page-content">
+            <iframe id="page-iframe" src="" frameborder="0"></iframe>
+        </div>
+
+        <div id="sidebar-toggle" onclick="toggleSidebar()">&#9776;</div>
+
+        <!-- LEFT SIDEBAR -->
+        <div id="sidebar-nav" class="sidebar">
+            <div class="sidebar-scroll">
+               <nav>
+    <ul class="nav">
+        <li><a href="#" class="load-tab lnr lnr-home" data-url=""><span>Dashboard</span></a></li>
+    </ul>
+    <ul class="nav">
+        <li><a href="#" class="load-tab lnr lnr-book" data-url="booklist.html"><span>Load Book List</span></a></li>
+    </ul>
+    <ul class="nav">
+        <li><a href="#" class="load-tab lnr lnr-chart-bars" data-url="viewbooks.html"><span>View Books</span></a></li>
+    </ul>
+    <ul class="nav">
+        <li><a href="#" class="load-tab lnr lnr-cog" data-url=""><span>Settings</span></a></li>
+    </ul>
+</nav>
+
+            </div>
+        </div>
+    </div>
+  <a class="back-button" href="javascript:void(0);" id="backButton">
+    <i class="lnr lnr-arrow-left-circle"></i> Back
+</a>
+
+
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script>
+	document.addEventListener("DOMContentLoaded", function() {
+  const iframe = document.getElementById('page-iframe');
+   // const loadButtons = document.querySelectorAll('.load-button');
+      const backButton = document.getElementById('backButton'); 
+        const logoutLink = document.getElementById('logoutLink');
+    const loadTabs = document.querySelectorAll('.load-tab');
+   //const iframe = document.getElementById('page-iframe');
+   const tabData = {};
+loadTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const tabId = url; // Use a unique identifier for each tab
+
+        if (!tabData[tabId]) {
+            tabData[tabId] = url;
+        }
+
+        iframe.src = tabData[tabId];
+    });
+});
+
+
+      backButton.addEventListener('click', function() {
+            history.back();
+        });
+logoutLink.addEventListener("click", function(event) {
+            event.preventDefault();
+            
+            const confirmLogout = window.confirm("Are you sure you want to log out?");
+            
+            if (confirmLogout) {
+                // Perform logout actions here
+                document.cookie = "JSESSIONID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/login"; // Replace with the actual login page URL
+            }
+        });
+});
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar-nav');
+    sidebar.classList.toggle('active');
+}
+
+    </script>
+
+
+</body>
+
+</html>
